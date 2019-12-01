@@ -1,0 +1,11 @@
+import aa from 'aa'
+
+function foo(...args) {
+  console.log(args)
+}
+
+foo(11, 222, 334, 4, 5, 553)
+
+const f = { aa: 23, b: 23, c: 323 }
+
+const g = { ...f }

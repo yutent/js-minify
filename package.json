@@ -1,0 +1,61 @@
+{
+  "name": "Es7toEs5",
+  "displayName": "es7转es5",
+  "description": "自用的es7转es5的编译工具",
+  "version": "1.0.0",
+  "publisher": "yutent",
+  "author": "Yutent [@yutent]",
+  "engines": {
+    "vscode": "^1.28.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["*"],
+  "main": "./index",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ES7toES5.compile",
+        "title": "编译当前ES7..."
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "!inOutput",
+          "command": "ES7toES5.compile",
+          "title": "编译当前ES7..."
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "es7 to es5 编译配置",
+      "properties": {
+        "ES7toES5.compileOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "保存时自动编译"
+        },
+        "ES7toES5.minify": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否压缩代码"
+        },
+        "ES7toES5.exclude": {
+          "type": "string",
+          "default": "",
+          "description": "要忽略的目录/文件的正则"
+        }
+      }
+    }
+  },
+  "scripts": {},
+  "license": "MIT",
+  "dependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "iofs": "^1.2.1",
+    "uglify-es": "^3.3.9"
+  },
+  "devDependencies": {}
+}
