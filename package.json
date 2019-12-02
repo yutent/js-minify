@@ -2,7 +2,7 @@
   "name": "es7-to-es5",
   "displayName": "es7转es5",
   "description": "自用的es7转es5的编译工具",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "yutent",
   "author": "Yutent [@yutent]",
   "engines": {
