@@ -70,6 +70,14 @@ const Compiler = {
     if (!/\.es[67]$/.test(origin)) {
       return
     }
+
+    // 过滤不编译的文件
+    if (options.exclude) {
+      if (options.exclude.test(origin)) {
+        return
+      }
+    }
+
     let target = origin.slice(0, -3) + 'js'
 
     if (options.outdir) {
@@ -117,6 +125,9 @@ function __init__() {
       if (options.outdir) {
         options.outdir = path.join(options.workspace, options.outdir)
       }
+    }
+    if (options.exclude) {
+      options.exclude = new RegExp(options.exclude, 'i')
     }
   } catch (err) {
     std.out(err)
