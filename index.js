@@ -59,6 +59,9 @@ const Compiler = {
 
     if (options.outdir) {
       let tmp = target.replace(options.workspace, '.')
+      if (tmp.startsWith('./src')) {
+        tmp = tmp.replace('./src', '.')
+      }
       target = path.join(options.workspace, options.outdir, tmp)
     }
 
