@@ -7,51 +7,28 @@
 'use strict'
 
 const vsc = require('vscode')
-const std = vsc.window.createOutputChannel('es7-to-es5')
-std.out = function(msg) {
-  std.appendLine(msg)
-}
-// const log = console.log
-
 const fs = require('iofs')
 const path = require('path')
-const babel = require('babel-core')
 const uglify = require('uglify-es')
 
-const BUILD_OPT = {
-  presets: [
-    [
-      'env',
-      {
-        targets: {
-          chrome: 48 // xp支持的最后一个版本,约在2016年初发布的
-        }
-      }
-    ]
-  ],
-  plugins: [
-    // 'transform-es2015-modules-amd',
-    'transform-decorators-legacy',
-    'transform-object-rest-spread',
-    ['transform-es2015-classes', { loose: true }],
-    ['transform-es2015-for-of', { loose: true }]
-  ]
+const std = vsc.window.createOutputChannel('js-minify')
+const log = console.log
+
+std.out = function(msg) {
+  std.appendLine(msg)
 }
 
 const options = {
   compileOnSave: true,
-  minify: false,
   exclude: ''
 }
 
 const Compiler = {
   compile(origin, target) {
     try {
-      let { code } = babel.transformFileSync(origin, BUILD_OPT)
+      var code = fs.cat(origin).toString()
 
-      if (options.minify) {
-        code = uglify.minify(code).code
-      }
+      code = uglify.minify(code).code
 
       fs.echo(code, target)
     } catch (err) {
@@ -82,7 +59,7 @@ const Compiler = {
 
     if (options.outdir) {
       let tmp = target.replace(options.workspace, '.')
-      target = path.join(options.outdir, tmp)
+      target = path.join(options.workspace, options.outdir, tmp)
     }
 
     this.compile(origin, target)
@@ -91,7 +68,7 @@ const Compiler = {
 
 function __init__() {
   try {
-    let conf = vsc.workspace.getConfiguration('ES7toES5')
+    let conf = vsc.workspace.getConfiguration('JSminify')
     let folders = vsc.workspace.workspaceFolders
     let wsDir = ''
     let configFile = ''
@@ -104,19 +81,19 @@ function __init__() {
     }
 
     if (wsDir) {
-      configFile = path.join(wsDir, 'es7toes5.json')
+      configFile = path.join(wsDir, '.es2jsrc')
     } else {
       let editor = vsc.window.activeTextEditor
       if (editor) {
         wsDir = path.dirname(editor.document.fileName)
-        configFile = path.join(wsDir, 'es7toes5.json')
+        configFile = path.join(wsDir, '.es2jsrc')
       }
     }
 
-    // 以配置文件所在目录为根目录(workspace)
-    if (fs.exists(configFile)) {
-      options.workspace = path.dirname(configFile)
+    options.workspace = wsDir
 
+    // 有配置文件时, 优先使用配置文件的配置
+    if (fs.exists(configFile)) {
       let tmp = JSON.parse(fs.cat(configFile).toString())
 
       Object.assign(options, tmp)
@@ -143,5 +120,14 @@ exports.activate = function(ctx) {
     std.clear()
     Compiler.filter(doc)
   })
+
+  let cmd = vsc.commands.registerCommand('JSminify.compile', _ => {
+    let editor = vsc.window.activeTextEditor
+
+    if (editor) {
+      Compiler.compile(editor.document)
+    }
+  })
+  ctx.subscriptions.push(cmd)
 }
 exports.deactivate = function() {}
